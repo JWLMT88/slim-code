@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slim code. | Alexandra and Dilara</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.css">
+    <script>
+        var require = { paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs' } };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.nls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/jquery.terminal@2.37.2/js/jquery.terminal.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jquery.terminal@2.37.2/css/jquery.terminal.min.css"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/editor.css">
+    <link rel="stylesheet" href="styles/sidebar.css">
+    <script src="js/config/tailwind.config.js"></script>
+    <link rel="icon" href="/assets/icon.webp">
+</head>
+<body class="bg-editor-sidebar text-white h-screen overflow-hidden">
+    <div class="flex h-screen">
+        <aside class="sidebar w-64 flex flex-col bg-editor-sidebar">
+
+            <div class="resize-handle"></div>
+            
+            <button class="collapse-button" title="Toggle Sidebar">
+                <span class="material-icons">chevron_left</span>
+            </button>
+            
+            <div class="sidebar-content flex flex-col h-full">
+                <div class="p-4 border-b border-gray-700">
+                    <div class="flex items-center space-x-3">
+                        <img src="/assets/icon.webp" alt="slim code. Logo" class="w-14 h-14 shadow-lg rounded-2xl animate__animated animate__fadeIn">
+                        <div>
+                            <h1 class="text-lg font-semibold animate__animated animate__fadeIn">slim code.</h1>
+                            <p class="text-xs text-gray-400 animate__animated animate__fadeIn">by Alexandra</p>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="flex-1 overflow-hidden flex flex-col">
+                    <div class="flex border-b border-gray-700 px-2 justify-center">
+                        <button class="px-4 py-3 text-sm hover:text-editor-accent transition-colors" data-tab="explorer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><circle cx="12" cy="13" r="2"/><path d="M12 15v5"/></svg>
+                        </button>
+                        <button class="px-4 py-3 text-sm hover:text-editor-accent transition-colors" data-tab="search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M10.7 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v4.1"/><path d="m21 21-1.9-1.9"/><circle cx="17" cy="17" r="3"/></svg>
+                        </button>
+                        <button class="px-4 py-3 text-sm hover:text-editor-accent transition-colors" data-tab="notes">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg>
+                        </button>
+                    </div>
+ 
+                    <div class="flex-1 overflow-hidden">
+                        <div class="h-full overflow-y-auto" data-content="explorer">
+                            <div class="">
+                                <div class="flex items-center px-4 pt-4 justify-between">
+                                    <h2 class="text-sm font-semibold text-gray-400 uppercase" id="explorer-title">Explorer</h2>
+                                    <div class="flex space-x-2">
+                                        <button class="p-1 hover:bg-gray-700 rounded" title="New File">
+                                            <span class="material-icons text-sm">note_add</span>
+                                        </button>
+                                        <button class="p-1 hover:bg-gray-700 rounded" title="New Folder">
+                                            <span class="material-icons text-sm">create_new_folder</span>
+                                        </button>
+                                        <button class="p-1 hover:bg-gray-700 rounded" title="Refresh">
+                                            <span class="material-icons text-sm">refresh</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="file-tree" class="space-y-1 px-2"></div>
+                            </div>
+                        </div>
+
+                        <div class="hidden h-full overflow-y-auto" data-content="search">
+                            <div class="p-4">
+                                <div class="space-y-4">
+                                    <div class="relative">
+                                        <input type="text" id="search-input" class="w-full bg-gray-900/20 border border-gray-700 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:border-editor-accent" placeholder="Search in files...">
+                                        <span class="material-icons absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" id="search-case-sensitive" class="form-checkbox bg-gray-700">
+                                            <span>Match Case</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" id="search-whole-word" class="form-checkbox bg-gray-700">
+                                            <span>Whole Word</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2">
+                                            <input type="checkbox" id="search-regex" class="form-checkbox bg-gray-700">
+                                            <span>Use Regex</span>
+                                        </label>
+                                    </div>
+                                    <div id="search-results" class="space-y-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden h-full overflow-y-auto" data-content="notes">
+                            <div class="p-4">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <h2 class="text-sm font-semibold text-gray-400 uppercase">File Notes</h2>
+                                        <button class="p-1 hover:bg-gray-700 rounded" title="Add Note">
+                                            <span class="material-icons text-sm">add</span>
+                                        </button>
+                                    </div>
+                                    <div id="file-notes" class="space-y-3">
+                                        <!-- Notes will be dynamically added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col border border-gray-700 mt-3" style="border-radius: 16px 0px 0px 0px; overflow: hidden;">
+            <div class="bg-editor-header border-b border-gray-700">
+                <div class="flex" id="tabs-container"></div>
+            </div>
+
+            <main class="flex-1 relative">
+                <div id="welcome-screen" class="absolute inset-0 bg-editor-bg flex items-center justify-center">
+                    <div class="w-full h-full flex">
+                        
+                        <div class="w-1/2 p-12 flex flex-col justify-center space-y-8 border-r border-gray-700">
+                            <div class="space-y-6 max-w-lg">
+                                <div class="space-y-2">
+                                    <h1 class="text-4xl font-bold animate__animated animate__fadeIn">slim code.</h1>
+                                    <p class="text-xl text-gray-400 animate__animated animate__fadeIn animate__delay-1s">Your modern, lightweight code editor</p>
+                                </div>
+                                
+                                <div class="space-y-4 animate__animated animate__fadeIn animate__delay-2s">
+                                    <div class="flex items-start space-x-3">
+                                        <span class="material-icons text-editor-accent">auto_awesome</span>
+                                        <div>
+                                            <h3 class="font-semibold">Smart Features</h3>
+                                            <p class="text-gray-400">Intelligent code completion, syntax highlighting, and real-time error detection</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3">
+                                        <span class="material-icons text-editor-accent">bolt</span>
+                                        <div>
+                                            <h3 class="font-semibold">Lightning Fast</h3>
+                                            <p class="text-gray-400">Built for speed with instant file switching and quick project navigation</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3">
+                                        <span class="material-icons text-editor-accent">extension</span>
+                                        <div>
+                                            <h3 class="font-semibold">Extensible</h3>
+                                            <p class="text-gray-400">Customize your experience with powerful extensions and themes</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start space-x-3">
+                                        <span class="material-icons text-editor-accent">cloud_done</span>
+                                        <div>
+                                            <h3 class="font-semibold">Auto-Save</h3>
+                                            <p class="text-gray-400">Never lose your work with automatic file saving and session restoration</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 animate__animated animate__fadeIn animate__delay-3s">
+                                    <p class="text-sm text-gray-500">Made with ❤️ by Alexandra and Dilara</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-1/2 p-12 flex flex-col justify-center">
+                            <div class="max-w-lg mx-auto w-full space-y-8">
+                                <div class="space-y-4 animate__animated animate__fadeIn animate__delay-1s">
+                                    <h2 class="text-xl font-semibold">Recent Projects</h2>
+                                    <div class="grid grid-cols-2 gap-4" id="recent-projects">
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-800/20 rounded-lg p-4 space-y-6 animate__animated animate__fadeIn animate__delay-2s border border-gray-700">
+                                    <h2 class="text-xl font-semibold">Create New Project</h2>
+                                    <form id="new-project-form" class="space-y-4">
+                                        <div class="space-y-2">
+                                            <label class="text-sm text-gray-400">Project Name</label>
+                                            <input type="text" id="project-name" class="w-full bg-gray-900/20 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-editor-accent" placeholder="My Awesome Project">
+                                        </div>
+                                        
+                                        <div class="space-y-2">
+                                            <label class="text-sm text-gray-400">Project Type</label>
+                                            <select id="project-type" class="w-full bg-gray-900/20 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-editor-accent">
+                                                <option value="web">Web Application</option>
+                                                <option value="react">React Application</option>
+                                                <option value="empty">Empty Project</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="pt-4">
+                                            <button type="submit" class="w-full bg-editor-accent/40 hover:bg-blue-600/30 text-white py-2 px-4 rounded-lg transition-colors">
+                                                Create Project
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="flex justify-center space-x-4 animate__animated animate__fadeIn animate__delay-3s">
+                                    <button class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors" id="open-folder-btn">
+                                        <span class="material-icons">folder_open</span>
+                                        <span>Open Folder</span>
+                                    </button>
+                                    <button class="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors" id="clone-repo-btn">
+                                        <span class="material-icons">code</span>
+                                        <span>Clone Repository</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="monaco-editor" class="absolute inset-0 hidden"></div>
+            </main>
+
+            <footer class="h-8 bg-editor-header text-white text-xs border-t border-gray-700">
+                <div class="h-full flex items-center justify-between px-4">
+                    <div class="flex items-center space-x-4">
+                        <button class="p-1 hover:bg-gray-700 rounded transition-colors" title="New File">
+                            <span class="material-icons text-sm">note_add</span>
+                        </button>
+                        <button class="p-1 hover:bg-gray-700 rounded transition-colors" title="Save">
+                            <span class="material-icons text-sm">save</span>
+                        </button>
+                        <button class="p-1 hover:bg-gray-700 rounded transition-colors" title="Run">
+                            <span class="material-icons text-sm">play_arrow</span>
+                        </button>
+                        <button class="p-1 hover:bg-gray-700 rounded transition-colors" title="Terminal" id="terminal-btn">
+                            <span class="material-icons text-sm">terminal</span>
+                        </button>
+                        <span id="position-indicator">Ln 1, Col 1</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <select id="theme-select" class="bg-gray-800 text-sm rounded border border-gray-700 px-2 py-1 focus:outline-none focus:border-editor-accent transition-colors">
+                            <option value="vs-dark">Dark Theme</option>
+                            <option value="vs-light">Light Theme</option>
+                            <option value="hc-black">High Contrast</option>
+                        </select>
+                        <span id="file-type">JavaScript</span>
+                        <span id="encoding">UTF-8</span>
+                        <span id="indent-type">Spaces: 2</span>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Terminal Panel -->
+            <div id="terminal-panel" class="hidden absolute bottom-8 left-0 right-0 bg-editor-bg border-t border-gray-700 transition-transform duration-300" style="height: 300px;">
+                <div class="flex items-center justify-between px-4 py-2 bg-editor-header border-b border-gray-700">
+                    <div class="flex items-center space-x-2">
+                        <span class="material-icons text-sm">terminal</span>
+                        <span class="text-sm font-medium">Terminal</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="terminal-clear" class="p-1 hover:bg-gray-700 rounded transition-colors" title="Clear Terminal">
+                            <span class="material-icons text-sm">clear_all</span>
+                        </button>
+                        <button id="terminal-close" class="p-1 hover:bg-gray-700 rounded transition-colors" title="Close Terminal">
+                            <span class="material-icons text-sm">close</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="terminal-container" class="h-full overflow-auto p-2 font-mono text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/modules/sidebar.js"></script>
+    <script src="js/modules/tabs.js"></script>
+    <script src="js/modules/explorer.js"></script>
+    <script src="js/modules/extensions.js"></script>
+    <script src="js/modules/projects.js"></script>
+    <script src="js/modules/editor.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/modules/search.js"></script>
+    <script src="js/modules/notes.js"></script>
+    <script src="js/modules/terminal-panel.js"></script>
+</body>
+</html>

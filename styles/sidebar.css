@@ -1,0 +1,157 @@
+/* Sidebar base */
+.sidebar {
+    position: relative;
+    min-width: 48px;
+    transition: min-width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    min-width: 48px;
+    width: 48px !important;
+}
+
+.sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .collapse-button {
+    transform: rotate(180deg);
+}
+
+/* Resize handle */
+.resize-handle {
+    position: absolute;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+    background: transparent;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.resize-handle:hover,
+.resize-handle.active {
+    background: rgba(0, 122, 204, 0.4);
+}
+
+/* Collapse button */
+.collapse-button {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: #1e1e1e;
+    border: 1px solid #404040;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 11;
+    transition: transform 0.3s ease, background-color 0.2s;
+}
+
+.collapse-button:hover {
+    background-color: #2d2d2d;
+}
+
+.collapse-button .material-icons {
+    font-size: 18px;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.collapse-button:hover .material-icons {
+    color: #fff;
+}
+
+/* Sidebar content transitions */
+.sidebar-content {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Tabs */
+[data-tab] {
+    position: relative;
+}
+
+[data-tab]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background-color 0.2s;
+}
+
+[data-tab].active::after {
+    background: #007acc;
+}
+
+.file-tree-item {
+    transition: background-color 0.2s;
+}
+
+.file-tree-item.active {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.directory-arrow {
+    transition: transform 0.2s;
+}
+
+.directory-arrow.expanded {
+    transform: rotate(90deg);
+}
+
+/* Extensions list */
+.extension-card {
+    border: 1px solid #404040;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+.extension-card:hover {
+    border-color: #007acc;
+}
+
+/* Projects list */
+.project-card {
+    border: 1px solid #404040;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.project-card:hover {
+    border-color: #007acc;
+    transform: translateY(-1px);
+}
+
+/* Sidebar sections */
+[data-content] {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease-out;
+}
+
+[data-content].active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Sidebar bottom actions */
+.bottom-actions button {
+    transition: color 0.2s;
+}
+
+.bottom-actions button:hover {
+    color: #007acc;
+} 

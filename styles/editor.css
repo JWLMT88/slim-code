@@ -1,0 +1,228 @@
+
+.file-tree-item {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.file-tree-item .item-content {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.file-tree-item .item-content:hover {
+    background-color: rgb(132 132 132 / 5%)
+}
+
+.file-tree-item.active > .item-content {
+    background-color: rgba(0, 122, 204, 0.2);
+}
+
+.file-tree-item .directory-arrow {
+    transition: transform 0.2s ease;
+}
+
+.file-tree-item .directory-arrow.expanded {
+    transform: rotate(90deg);
+}
+
+.file-tree-item .children {
+    margin-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 8px;
+    margin-top: 2px;
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: rgb(37, 37, 37);
+    border: 1px solid rgb(64, 64, 64);
+    border-radius: 4px;
+    padding: 4px;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: contextMenuFadeIn 0.15s ease;
+}
+
+@keyframes contextMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    color: #e0e0e0;
+    font-size: 0.875rem;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+
+.context-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.context-menu-item .material-icons {
+    font-size: 16px;
+    color: #888;
+}
+
+.context-menu-separator {
+    height: 1px;
+    background-color: rgb(64, 64, 64);
+    margin: 4px 0;
+}
+
+.context-menu-item.destructive {
+    color: #ff4444;
+}
+
+.context-menu-item.destructive .material-icons {
+    color: #ff4444;
+}
+
+/* File icons */
+.file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+.file-tree-item .status-indicator {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: transparent;
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s ease;
+}
+
+.file-tree-item.modified .status-indicator {
+    background-color: #ffd700;
+}
+
+.file-tree-item.new .status-indicator {
+    background-color: #4CAF50;
+}
+
+/* Drag and drop indicators */
+.file-tree-item.drag-over > .item-content {
+    background-color: rgba(0, 122, 204, 0.1);
+    box-shadow: inset 0 0 0 1px #007acc;
+}
+
+.file-tree-item .drag-indicator {
+    position: absolute;
+    height: 2px;
+    background-color: #007acc;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    display: none;
+}
+
+.file-tree-item.drag-over-top .drag-indicator-top {
+    display: block;
+    top: 0;
+}
+
+.file-tree-item.drag-over-bottom .drag-indicator-bottom {
+    display: block;
+    bottom: 0;
+}
+
+/* Animations */
+@keyframes fileTreeItemFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.file-tree-item {
+    animation: fileTreeItemFadeIn 0.2s ease;
+}
+
+/* Monaco Editor customizations */
+.monaco-editor {
+    padding-top: 0.5rem;
+}
+
+.monaco-editor .margin {
+    border-right: 1px solid #404040;
+}
+
+/* Editor overrides */
+.monaco-editor .minimap-slider {
+    background: rgba(100, 100, 100, 0.2);
+}
+
+.monaco-editor .minimap-slider:hover {
+    background: rgba(100, 100, 100, 0.35);
+}
+
+.border-gray-700 {
+    --tw-border-opacity: 1;
+    border-color: rgb(45 45 45) !important;
+}
+
+/* Editor suggestions */
+.monaco-editor .suggest-widget {
+    border: 1px solid #404040;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+    background-color: #2d2d2d;
+}
+
+/* Parameter hints */
+.monaco-editor .parameter-hints-widget {
+    border: 1px solid #404040;
+}
+
+/* Find widget */
+.monaco-editor .find-widget {
+    border: 1px solid #404040;
+}
+
+/* Editor overlays */
+.monaco-editor .overlayWidgets {
+    z-index: 100;
+}
+
+/* Line numbers */
+.monaco-editor .line-numbers {
+    color: #858585;
+}
+
+/* Active line highlight */
+.monaco-editor .current-line {
+    border: none;
+    background-color: rgba(255, 255, 255, 0.04);
+} 
