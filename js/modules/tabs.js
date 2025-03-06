@@ -1,281 +1,351 @@
+/**
+ * Tabs Class
+ * Manages editor tabs for open files
+ */
 class Tabs {
     constructor() {
-        this.container = document.getElementById('tabs-container');
-        this.tabs = new Map(); 
+        this.container = document.querySelector('.tabs-container');
+        this.tabs = [];
         this.activeTab = null;
-        this.pendingFiles = new Map();
-        this.autoSaveInterval = null;
         
         this.init();
     }
-
+    
+    /**
+     * Initialize tabs
+     */
     init() {
-        registerShortcut('w', () => this.closeActiveTab());
-        this.setupAutoSave();
-        this.setupContentChangeListener();
-    }
-
-    setupAutoSave() {
-        this.autoSaveInterval = setInterval(() => {
-            if (this.activeTab) {
-                this.saveActiveTab();
-            }
-        }, 3000);
-    }
-
-    setupContentChangeListener() {
-        if (window.editor && window.editor.editor) {
-            window.editor.editor.onDidChangeModelContent(() => {
-                if (this.activeTab) {
-                    const content = window.editor.getValue();
-                    this.updateFileContent(this.activeTab, content);
-                }
-            });
-        } else {
-            setTimeout(() => this.setupContentChangeListener(), 1000);
-        }
-    }
-
-    updateFileContent(path, content) {
-        // Update pending files
-        const pendingFile = this.pendingFiles.get(path);
-        if (pendingFile) {
-            pendingFile.content = content;
-        } else {
-            this.pendingFiles.set(path, {
-                content: content,
-                language: getFileLanguage(path)
-            });
-        }
-
-        // Update file system if available
-        if (window.explorer && window.explorer.fileSystem) {
-            // Navigate through file system to find and update the file
-            const parts = path.split('/').filter(Boolean);
-            let current = window.explorer.fileSystem;
-
-            // Navigate to the parent directory
-            for (const part of parts.slice(0, -1)) {
-                if (!current[part] || current[part].type !== 'directory') return false;
-                current = current[part].children;
-            }
-
-            // Get the file name and update its content
-            const fileName = parts[parts.length - 1];
-            if (current[fileName]) {
-                current[fileName].content = content;
-                try {
-                    saveToLocalStorage('fileSystem', window.explorer.fileSystem);
-                    
-                    // Also update the explorer's current file if it matches
-                    if (window.explorer.currentFile && window.explorer.currentFile.path === path) {
-                        window.explorer.currentFile.file.content = content;
-                    }
-                    
-                    return true;
-                } catch (error) {
-                    console.error('Error saving file:', error);
-                    return false;
-                }
-            }
-        }
-        return true; // Return true if only pending file was updated
-    }
-
-    async activateTab(path) {
-        // Get tab element
-        const tab = this.tabs.get(path);
-        if (!tab) {
-            console.warn(`Tab not found for path: ${path}`);
-            return;
-        }
-
-        // Deactivate current tab
-        if (this.activeTab) {
-            const currentTab = this.tabs.get(this.activeTab);
-            if (currentTab) {
-                currentTab.classList.remove('border-t-2', 'border-editor-accent');
-                currentTab.classList.add('py-1.5');
-                await this.saveActiveTab();
-            }
-        }
-
-        // Activate new tab
-        tab.classList.add('border-t-2', 'border-editor-accent');
-        tab.classList.remove('py-1.5');
-        this.activeTab = path;
-
-        // Ensure tab is visible (scroll into view)
-        tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-
-        // Get the most up-to-date content
-        const content = this.getLatestContent(path);
-        const language = getFileLanguage(path);
-
-        // Update editor content
-        if (window.editor) {
-            await window.editor.setValue(content, language);
-        }
-    }
-
-    async openTab(path, file) {
-        if (this.tabs.has(path)) {
-            await this.activateTab(path);
-            return;
-        }
-
-        const tab = createElement('div', 'group px-4  py-1.5 flex items-center space-x-2 border-r border-gray-700 bg-editor-bg cursor-pointer hover:bg-gray-800 transition-colors tab-enter');
+        if (!this.container) return;
         
+        // Load tabs from session if available
+        this.loadSession();
+    }
+    
+    /**
+     * Create a new tab
+     * @param {Object} file - File object with path and content
+     * @returns {HTMLElement} The created tab element
+     */
+    createTab(file) {
+        if (!this.container) return null;
+        
+        // Check if tab already exists
+        const existingTab = this.findTabByPath(file.path);
+        if (existingTab) {
+            this.activateTab(existingTab);
+            return existingTab.element;
+        }
+        
+        // Create tab element
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.setAttribute('data-path', file.path);
+        
+        // Get file name from path
+        const fileName = file.path.split('/').pop();
+        
+        // Determine language based on file extension
+        const extension = fileName.split('.').pop().toLowerCase();
+        const language = this.getLanguageFromExtension(extension);
+        
+        // Create tab content
         tab.innerHTML = `
-            <span class="material-icons text-sm">${file.icon}</span>
-            <span class="text-sm">${getFileName(path)}</span>
-            <button class="opacity-0 group-hover:opacity-100 flex justify-center items-center w-4 h-4 ml-2 hover:text-red-400s">
-                <span class="material-icons text-sm">close</span>
+            <span class="tab-name">${fileName}</span>
+            <button class="tab-close">
+                <span class="material-icons text-xs">close</span>
             </button>
         `;
-
-        tab.addEventListener('click', () => this.activateTab(path));
-        tab.querySelector('button').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.closeTab(path);
-        });
-
-        tab.addEventListener('mousedown', (e) => {
-            if (e.button === 1) {
-                e.preventDefault();
-                this.closeTab(path);
+        
+        // Add tab to container
+        this.container.appendChild(tab);
+        
+        // Add tab to tabs array
+        const tabObj = {
+            element: tab,
+            path: file.path,
+            content: file.content,
+            language,
+            modified: false
+        };
+        
+        this.tabs.push(tabObj);
+        
+        // Add event listeners
+        tab.addEventListener('click', (e) => {
+            if (!e.target.closest('.tab-close')) {
+                this.activateTab(tabObj);
             }
         });
-
-        this.container.appendChild(tab);
-        this.tabs.set(path, tab);
         
-        this.pendingFiles.set(path, {
-            content: file.content,
-            language: getFileLanguage(path)
+        tab.querySelector('.tab-close').addEventListener('click', () => {
+            this.closeTab(tabObj);
         });
         
-        await this.activateTab(path);
+        // Activate the new tab
+        this.activateTab(tabObj);
+        
+        return tab;
     }
-
-    getLatestContent(path) {
-        // First check pending files for the most recent content
-        const pendingFile = this.pendingFiles.get(path);
-        if (pendingFile) {
-            return pendingFile.content;
-        }
-
-        // Then check file system
-        const file = this.getFileFromPath(path);
-        if (file) {
-            return file.content;
-        }
-
-        return '';
-    }
-
-    async closeTab(path) {
-        const tab = this.tabs.get(path);
+    
+    /**
+     * Activate a tab
+     * @param {Object} tab - Tab object to activate
+     */
+    activateTab(tab) {
         if (!tab) return;
-
-        // Save content before closing
-        if (path === this.activeTab) {
-            await this.saveActiveTab();
+        
+        // Deactivate current active tab
+        if (this.activeTab) {
+            this.activeTab.element.classList.remove('active');
         }
-
-        // Remove tab element with animation
-        tab.style.opacity = '0';
-        tab.style.transform = 'translateY(-10px)';
-        setTimeout(() => removeElement(tab), 200);
-
-        this.tabs.delete(path);
-        this.pendingFiles.delete(path);
-
-        // If closing active tab, activate another one
-        if (path === this.activeTab) {
-            const tabs = Array.from(this.tabs.keys());
-            if (tabs.length > 0) {
-                await this.activateTab(tabs[tabs.length - 1]);
+        
+        // Activate new tab
+        tab.element.classList.add('active');
+        this.activeTab = tab;
+        
+        // Load content into editor
+        if (window.slimCodeEditor && window.slimCodeEditor.editor) {
+            window.slimCodeEditor.editor.setContent(tab.content, tab.language);
+        }
+        
+        // Save session
+        this.saveSession();
+    }
+    
+    /**
+     * Close a tab
+     * @param {Object} tab - Tab object to close
+     */
+    closeTab(tab) {
+        if (!tab) return;
+        
+        // Check if tab has unsaved changes
+        if (tab.modified) {
+            if (window.slimCodeEditor && window.slimCodeEditor.modal) {
+                window.slimCodeEditor.modal.show({
+                    title: 'Unsaved Changes',
+                    body: `<p>Do you want to save the changes you made to ${tab.path.split('/').pop()}?</p>`,
+                    onConfirm: () => {
+                        this.saveTab(tab);
+                        this.removeTab(tab);
+                    },
+                    onCancel: () => {
+                        this.removeTab(tab);
+                    }
+                });
             } else {
-                this.activeTab = null;
-                if (window.editor && window.editor.isReady()) {
-                    await window.editor.setValue('');
+                const confirm = window.confirm(`Do you want to save the changes you made to ${tab.path.split('/').pop()}?`);
+                if (confirm) {
+                    this.saveTab(tab);
+                }
+                this.removeTab(tab);
+            }
+        } else {
+            this.removeTab(tab);
+        }
+    }
+    
+    /**
+     * Remove a tab
+     * @param {Object} tab - Tab object to remove
+     */
+    removeTab(tab) {
+        if (!tab) return;
+        
+        // Remove tab element
+        tab.element.remove();
+        
+        // Remove tab from tabs array
+        const index = this.tabs.indexOf(tab);
+        if (index !== -1) {
+            this.tabs.splice(index, 1);
+        }
+        
+        // If this was the active tab, activate another tab
+        if (this.activeTab === tab) {
+            this.activeTab = null;
+            
+            if (this.tabs.length > 0) {
+                // Activate the next tab or the previous tab if this was the last one
+                const newIndex = Math.min(index, this.tabs.length - 1);
+                this.activateTab(this.tabs[newIndex]);
+            } else {
+                // No more tabs, show welcome screen
+                if (window.slimCodeEditor && window.slimCodeEditor.editor) {
+                    window.slimCodeEditor.editor.hideEditor();
                 }
             }
         }
+        
+        // Save session
+        this.saveSession();
     }
-
-    closeActiveTab() {
-        if (this.activeTab) {
-            this.closeTab(this.activeTab);
-        }
+    
+    /**
+     * Save the active tab
+     */
+    saveActiveTab() {
+        if (!this.activeTab) return;
+        
+        this.saveTab(this.activeTab);
     }
-
-    getFileFromPath(path) {
-        // Check if we have a pending file first
-        const pendingFile = this.pendingFiles.get(path);
-        if (pendingFile) {
-            return {
-                content: pendingFile.content,
-                type: 'file'
-            };
-        }
-
-        // If explorer is not initialized yet, return null
-        if (!window.explorer || !window.explorer.fileSystem) {
-            return null;
-        }
-
-        // Navigate through file system to find file
-        const parts = path.split('/').filter(Boolean);
-        let current = window.explorer.fileSystem;
-
-        for (const part of parts.slice(0, -1)) {
-            if (!current[part] || current[part].type !== 'directory') return null;
-            current = current[part].children;
-        }
-
-        const fileName = parts[parts.length - 1];
-        return current[fileName];
-    }
-
-    async saveActiveTab() {
-        if (!this.activeTab) return false;
-
-        try {
-            if (!window.editor || !window.editor.isReady()) {
-                console.warn('Editor not ready for saving');
-                return false;
-            }
-
-            const currentContent = window.editor.getValue();
-            const success = this.updateFileContent(this.activeTab, currentContent);
+    
+    /**
+     * Save a tab
+     * @param {Object} tab - Tab object to save
+     */
+    saveTab(tab) {
+        if (!tab) return;
+        
+        // Get content from editor
+        if (window.slimCodeEditor && window.slimCodeEditor.editor) {
+            tab.content = window.slimCodeEditor.editor.getContent();
+            tab.modified = false;
             
-            if (success && window.explorer && window.explorer.fileSystem) {
-                saveToLocalStorage('fileSystem', window.explorer.fileSystem);
-                window.projects.saveSession();
-                return success;
+            // Update tab appearance
+            this.updateTabAppearance(tab);
+            
+            // Save file to storage
+            if (window.slimCodeEditor && window.slimCodeEditor.fileExplorer) {
+                window.slimCodeEditor.fileExplorer.saveFile(tab.path, tab.content);
             }
-            return false;
-        } catch (error) {
-            console.error('Error saving active tab:', error);
-            return false;
+            
+            // Show notification
+            if (window.slimCodeEditor && window.slimCodeEditor.notifications) {
+                window.slimCodeEditor.notifications.show({
+                    title: 'File Saved',
+                    message: `${tab.path.split('/').pop()} has been saved.`,
+                    type: 'success'
+                });
+            }
+        }
+        
+        // Save session
+        this.saveSession();
+    }
+    
+    /**
+     * Mark the active tab as modified
+     */
+    markActiveTabAsModified() {
+        if (!this.activeTab) return;
+        
+        // Get content from editor
+        if (window.slimCodeEditor && window.slimCodeEditor.editor) {
+            const currentContent = window.slimCodeEditor.editor.getContent();
+            
+            // Check if content has changed
+            if (currentContent !== this.activeTab.content) {
+                this.activeTab.modified = true;
+                this.updateTabAppearance(this.activeTab);
+            }
         }
     }
-
-    destroy() {
-        if (this.autoSaveInterval) {
-            clearInterval(this.autoSaveInterval);
+    
+    /**
+     * Update tab appearance based on its state
+     * @param {Object} tab - Tab object to update
+     */
+    updateTabAppearance(tab) {
+        if (!tab || !tab.element) return;
+        
+        const tabName = tab.element.querySelector('.tab-name');
+        if (tabName) {
+            // Add/remove modified indicator
+            if (tab.modified) {
+                if (!tabName.textContent.startsWith('* ')) {
+                    tabName.textContent = '* ' + tabName.textContent;
+                }
+            } else {
+                tabName.textContent = tabName.textContent.replace('* ', '');
+            }
+        }
+    }
+    
+    /**
+     * Find a tab by file path
+     * @param {string} path - File path to find
+     * @returns {Object|null} Tab object if found, null otherwise
+     */
+    findTabByPath(path) {
+        return this.tabs.find(tab => tab.path === path) || null;
+    }
+    
+    /**
+     * Get language from file extension
+     * @param {string} extension - File extension
+     * @returns {string} Language identifier for Monaco editor
+     */
+    getLanguageFromExtension(extension) {
+        const languageMap = {
+            'js': 'javascript',
+            'ts': 'typescript',
+            'html': 'html',
+            'css': 'css',
+            'json': 'json',
+            'md': 'markdown',
+            'py': 'python',
+            'java': 'java',
+            'cs': 'csharp',
+            'cpp': 'cpp',
+            'c': 'cpp',
+            'h': 'cpp',
+            'php': 'php',
+            'txt': 'plaintext'
+        };
+        
+        return languageMap[extension] || 'plaintext';
+    }
+    
+    /**
+     * Save tabs session to localStorage
+     */
+    saveSession() {
+        const session = {
+            tabs: this.tabs.map(tab => ({
+                path: tab.path,
+                content: tab.content,
+                language: tab.language,
+                modified: tab.modified
+            })),
+            activeTabIndex: this.activeTab ? this.tabs.indexOf(this.activeTab) : -1
+        };
+        
+        localStorage.setItem('slim-code-editor-tabs-session', JSON.stringify(session));
+    }
+    
+    /**
+     * Load tabs session from localStorage
+     */
+    loadSession() {
+        const sessionData = localStorage.getItem('slim-code-editor-tabs-session');
+        if (!sessionData) return;
+        
+        try {
+            const session = JSON.parse(sessionData);
+            
+            // Recreate tabs
+            session.tabs.forEach(tabData => {
+                const file = {
+                    path: tabData.path,
+                    content: tabData.content
+                };
+                
+                const tab = this.createTab(file);
+                const tabObj = this.findTabByPath(tabData.path);
+                
+                if (tabObj) {
+                    tabObj.modified = tabData.modified;
+                    this.updateTabAppearance(tabObj);
+                }
+            });
+            
+            // Activate the previously active tab
+            if (session.activeTabIndex !== -1 && session.activeTabIndex < this.tabs.length) {
+                this.activateTab(this.tabs[session.activeTabIndex]);
+            }
+        } catch (error) {
+            console.error('Error loading tabs session:', error);
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    window.tabs = new Tabs();
-});
-
-window.addEventListener('beforeunload', () => {
-    if (window.tabs) {
-        window.tabs.destroy();
-    }
-}); 

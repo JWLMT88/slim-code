@@ -1,501 +1,250 @@
-class App {
-    constructor() {
-        this.init();
-    }
+// Initialize all modules
+const editor = new Editor();
+const sidebar = new Sidebar();
+const fileExplorer = new FileExplorer();
+const tabs = new Tabs();
+const search = new Search();
+const notes = new Notes();
+const settings = new Settings();
+const statusBar = new StatusBar();
+const notifications = new NotificationManager();
+const modal = new ModalManager();
+const activityBar = new ActivityBar();
+const debugManager = new DebugManager();
 
-    init() {
-        this.initKeyboardShortcuts();
-        this.initStatusBarButtons();
-        this.initWindowEvents();
-        this.initTheme();
-        this.initNotifications();
-    }
+// Make modules available globally
+window.slimCodeEditor = {
+    editor,
+    sidebar,
+    fileExplorer,
+    tabs,
+    search,
+    notes,
+    settings,
+    notifications,
+    modal,
+    activityBar,
+    statusBar,
+    debugManager
+};
 
-    initKeyboardShortcuts() {
-        Object.entries(KEYBOARD_SHORTCUTS).forEach(([action, shortcut]) => {
-            const key = shortcut.split('+').pop().toLowerCase();
+// Initialize UI components
+initWelcomeScreen();
+registerKeyboardShortcuts();
+
+// Load user preferences
+loadUserPreferences();
+
+console.log('slim code. initialized');
+
+/**
+ * Initialize welcome screen
+ */
+function initWelcomeScreen() {
+    const newProjectBtn = document.querySelector('.start-option:nth-child(1)');
+    const openFolderBtn = document.querySelector('.start-option:nth-child(2)');
+    const newFileBtn = document.querySelector('.start-option:nth-child(3)');
+
+    if (newProjectBtn) {
+        newProjectBtn.addEventListener('click', () => {
+            window.slimCodeEditor.modal.show({
+                title: 'Create New Project',
+                body: `
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-xs text-editor-text-muted">Project Name</label>
+                            <input type="text" id="project-name" class="w-full" placeholder="My Project">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs text-editor-text-muted">Project Type</label>
+                            <select id="project-type" class="w-full">
+                                <option value="empty">Empty Project</option>
+                                <option value="web">Web Application</option>
+                                <option value="node">Node.js Application</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                onConfirm: () => {
+                    const projectName = document.getElementById('project-name').value;
+                    const projectType = document.getElementById('project-type').value;
+
+                    if (projectName) {
+                        window.slimCodeEditor.fileExplorer.createProject(projectName, projectType);
+                    }
+                }
+            });
             
-            registerShortcut(key, () => {
-                switch(action) {
-                    case 'save':
-                        if (window.tabs.activeTab) {
-                            window.tabs.saveActiveTab();
-                            this.showSaveIndicator();
-                        }
-                        break;
-                    case 'newFile':
-                        if (window.projects.currentProject) {
-                            window.explorer.createNewFile();
-                        } else {
-                            this.showNotification('No Project Open', 'Please create or open a project first', 'warning');
-                        }
-                        break;
-                    case 'openFile':
-                        if (window.projects.currentProject) {
-                        } else {
-                            this.showNotification('No Project Open', 'Please create or open a project first', 'warning');
-                        }
-                        break;
-                    case 'find':
-                        if (window.editor.editor) {
-                            window.editor.editor.getAction('actions.find').run();
-                        }
-                        break;
-                    case 'replace':
-                        if (window.editor.editor) {
-                            window.editor.editor.getAction('editor.action.startFindReplaceAction').run();
-                        }
-                        break;
-                    case 'commandPalette':
-                        if (window.editor.editor) {
-                            window.editor.showCommandPalette();
-                        }
-                        break;
-                }
-            });
+            // Focus the input
+            setTimeout(() => {
+                const input = document.getElementById('project-name');
+                if (input) input.focus();
+            }, 100);
         });
     }
 
-    initStatusBarButtons() {
-        document.querySelector('footer [title="New File"]').addEventListener('click', () => {
-            if (window.projects.currentProject) {
-                window.explorer.createNewFile();
-            } else {
-                this.showNotification('No Project Open', 'Please create or open a project first', 'warning');
-            }
-        });
-
-        document.querySelector('footer [title="Save"]').addEventListener('click', () => {
-            if (window.tabs.activeTab) {
-                window.tabs.saveActiveTab();
-                this.showSaveIndicator();
-            }
-        });
-
-        document.querySelector('footer [title="Run"]').addEventListener('click', () => {
-            if (window.tabs.activeTab) {
-                this.runCurrentFile();
-            } else {
-                this.showNotification('No File Open', 'Please open a file to run', 'warning');
-            }
-        });
-
-        document.getElementById('theme-select').addEventListener('change', (e) => {
-            this.setTheme(e.target.value);
+    if (openFolderBtn) {
+        openFolderBtn.addEventListener('click', () => {
+            window.slimCodeEditor.fileExplorer.openFolder();
         });
     }
 
-    initWindowEvents() {
-        window.addEventListener('beforeunload', (e) => {
-           
-            if (window.projects.currentProject) {
-                window.projects.saveSession();
-            }
-
-            if (this.hasUnsavedChanges()) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-
-        // Handle online/offline status
-        window.addEventListener('online', () => {
-            this.showNotification('Connection restored', 'You are now connected to the internet');
-        });
-
-        window.addEventListener('offline', () => {
-            this.showNotification('Connection lost', 'You are now working offline', 'warning');
+    if (newFileBtn) {
+        newFileBtn.addEventListener('click', () => {
+            window.slimCodeEditor.fileExplorer.createNewFile();
         });
     }
+    
+    // Load recent projects
+    loadRecentProjects();
+}
 
-    initTheme() {
-        const savedTheme = localStorage.getItem('editorTheme') || 'vs-dark';
-        this.setTheme(savedTheme);
-        document.getElementById('theme-select').value = savedTheme;
-    }
-
-    setTheme(theme) {
-        if (window.editor && window.editor.editor) {
-            window.editor.editor.updateOptions({ theme });
-            localStorage.setItem('editorTheme', theme);
-        }
-    }
-
-    initNotifications() {
-        // Create notifications container
-        const container = createElement('div', 'fixed bottom-4 right-4 space-y-2 z-50');
-        container.id = 'notifications';
-        document.body.appendChild(container);
-    }
-
-    hasUnsavedChanges() {
-        if (!window.tabs || !window.tabs.activeTab) return false;
-        
-        const currentContent = window.editor.getValue();
-        const savedContent = window.tabs.getLatestContent(window.tabs.activeTab);
-        return currentContent !== savedContent;
-    }
-
-    runCurrentFile() {
-        const activeTab = window.tabs.activeTab;
-        if (!activeTab) return;
-
-        const file = window.tabs.getFileFromPath(activeTab);
-        if (!file) return;
-
-        const extension = getFileExtension(activeTab);
-        
-        switch(extension) {
-            case 'js':
-                this.runJavaScript(file.content);
-                break;
-            case 'html':
-                this.runProject(activeTab);
-                break;
-            default:
-                this.showNotification('Cannot run file', `Running .${extension} files is not supported`, 'error');
-        }
-    }
-
-    runJavaScript(code) {
+/**
+ * Load recent projects
+ */
+function loadRecentProjects() {
+    const recentProjectsContainer = document.querySelector('.recent-projects');
+    if (!recentProjectsContainer) return;
+    
+    const lastProject = localStorage.getItem('slim-code-editor-last-project');
+    if (lastProject) {
         try {
-            // Create sandbox iframe
-            const sandbox = document.createElement('iframe');
-            sandbox.style.display = 'none';
-            document.body.appendChild(sandbox);
-
-            // Execute code in sandbox
-            const result = sandbox.contentWindow.eval(code);
-            console.log('Execution result:', result);
-
-            // Cleanup
-            document.body.removeChild(sandbox);
-        } catch (error) {
-            console.error('Execution error:', error);
-            this.showNotification('Execution Error', error.message, 'error');
-        }
-    }
-
-    runProject(htmlPath) {
-        if (this.previewWindow && !this.previewWindow.closed) {
-            this.previewWindow.close();
-        }
-
-        // Calculate window size and position
-        const width = 800;
-        const height = 600;
-        const left = window.screenX + (window.outerWidth - width) / 2;
-        const top = window.screenY + (window.outerHeight - height) / 2;
-
-        // Create a new popup window
-        this.previewWindow = window.open('', 'preview', `
-            width=${width},
-            height=${height},
-            left=${left},
-            top=${top},
-            menubar=no,
-            toolbar=no,
-            location=no,
-            status=no,
-            resizable=yes,
-            scrollbars=yes
-        `);
-
-        // Set initial content
-        this.previewWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Project Preview</title>
-                <style>
-                    #preview-toolbar {
-                        position: fixed;
-                        top: 0;
-                        right: 0;
-                        background: #1e1e1e;
-                        color: white;
-                        padding: 8px;
-                        border-radius: 0 0 0 8px;
-                        display: flex;
-                        gap: 8px;
-                        z-index: 9999;
-                        opacity: 0.3;
-                        transition: opacity 0.2s;
-                    }
-                    #preview-toolbar:hover {
-                        opacity: 1;
-                    }
-                    .preview-button {
-                        background: #333;
-                        border: none;
-                        color: white;
-                        padding: 4px 8px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                    }
-                    .preview-button:hover {
-                        background: #444;
-                    }
-                    #auto-reload {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        color: #888;
-                    }
-                    #preview-loading {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: #1e1e1e;
-                        color: white;
-                        padding: 16px 24px;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="preview-toolbar">
-                    <label id="auto-reload">
-                        <input type="checkbox" id="auto-reload-toggle" checked>
-                        Auto-reload
-                    </label>
-                    <button class="preview-button" onclick="window.location.reload()">Refresh</button>
-                </div>
-                <div id="preview-loading">Loading project...</div>
-            </body>
-            </html>
-        `);
-
-        // Store reference to the preview window
-        this.currentPreviewPath = htmlPath;
-
-        // Setup auto-reload functionality
-        this.setupPreviewSync();
-
-        // Get and inject project files
-        this.updatePreview();
-    }
-
-    updatePreview() {
-        if (!this.previewWindow || this.previewWindow.closed || !this.currentPreviewPath) return;
-
-        const projectFiles = this.getProjectFiles(this.currentPreviewPath);
-        
-        // Create a base element to handle relative paths
-        const base = this.previewWindow.document.createElement('base');
-        base.href = `project:///${getParentPath(this.currentPreviewPath)}/`;
-        
-        // Process HTML content
-        const modifiedHtml = this.processHtmlContent(projectFiles.html, projectFiles);
-        
-        // Update the preview window content
-        this.previewWindow.document.open();
-        this.previewWindow.document.write(modifiedHtml);
-        this.previewWindow.document.close();
-
-        // Restore toolbar
-        this.injectPreviewToolbar();
-
-        // Setup console logging
-        this.setupPreviewConsole();
-    }
-
-    setupPreviewSync() {
-        // Clear existing sync interval
-        if (this.previewSyncInterval) {
-            clearInterval(this.previewSyncInterval);
-        }
-
-        // Setup new sync interval
-        this.previewSyncInterval = setInterval(() => {
-            if (this.previewWindow && !this.previewWindow.closed) {
-                const autoReloadToggle = this.previewWindow.document.getElementById('auto-reload-toggle');
-                if (autoReloadToggle && autoReloadToggle.checked) {
-                    this.updatePreview();
-                }
-            } else {
-                // Clear interval if window is closed
-                clearInterval(this.previewSyncInterval);
-                this.previewSyncInterval = null;
-                this.previewWindow = null;
-                this.currentPreviewPath = null;
-            }
-        }, 1000); // Check for changes every second
-    }
-
-    setupPreviewConsole() {
-        if (!this.previewWindow) return;
-
-        this.previewWindow.console = {
-            log: (...args) => {
-                console.log('Preview:', ...args);
-                this.showNotification('Console Log', args.join(' '), 'info');
-            },
-            error: (...args) => {
-                console.error('Preview:', ...args);
-                this.showNotification('Console Error', args.join(' '), 'error');
-            },
-            warn: (...args) => {
-                console.warn('Preview:', ...args);
-                this.showNotification('Console Warning', args.join(' '), 'warning');
-            }
-        };
-    }
-
-    injectPreviewToolbar() {
-        if (!this.previewWindow) return;
-
-        const toolbar = this.previewWindow.document.getElementById('preview-toolbar');
-        if (!toolbar) {
-            const newToolbar = this.previewWindow.document.createElement('div');
-            newToolbar.id = 'preview-toolbar';
-            newToolbar.innerHTML = `
-                <label id="auto-reload">
-                    <input type="checkbox" id="auto-reload-toggle" checked>
-                    Auto-reload
-                </label>
-                <button class="preview-button" onclick="window.location.reload()">Refresh</button>
+            const projectData = JSON.parse(lastProject);
+            
+            // Clear container
+            recentProjectsContainer.innerHTML = '';
+            
+            // Create project item
+            const projectItem = document.createElement('div');
+            projectItem.className = 'recent-project flex items-center p-2 hover:bg-editor-highlight/50 rounded-lg cursor-pointer';
+            projectItem.innerHTML = `
+                <span class="material-icons mr-2">folder</span>
+                <span>${projectData.name}</span>
             `;
-            this.previewWindow.document.body.appendChild(newToolbar);
-        }
-    }
-
-    getProjectFiles(htmlPath) {
-        const result = {
-            html: '',
-            styles: new Map(),
-            scripts: new Map()
-        };
-
-        // Get the HTML content
-        const htmlFile = window.tabs.getFileFromPath(htmlPath);
-        if (htmlFile) {
-            result.html = htmlFile.content;
-
-            // Parse HTML to find linked resources
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlFile.content, 'text/html');
-
-            // Get stylesheets
-            doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href) {
-                    const stylePath = this.resolveRelativePath(htmlPath, href);
-                    const styleFile = window.tabs.getFileFromPath(stylePath);
-                    if (styleFile) {
-                        result.styles.set(href, styleFile.content);
-                    }
-                }
+            
+            // Add click event
+            projectItem.addEventListener('click', () => {
+                window.slimCodeEditor.fileExplorer.openProject(projectData.name, projectData.fileSystem);
             });
-
-            // Get scripts
-            doc.querySelectorAll('script[src]').forEach(script => {
-                const src = script.getAttribute('src');
-                if (src) {
-                    const scriptPath = this.resolveRelativePath(htmlPath, src);
-                    const scriptFile = window.tabs.getFileFromPath(scriptPath);
-                    if (scriptFile) {
-                        result.scripts.set(src, scriptFile.content);
-                    }
-                }
-            });
+            
+            recentProjectsContainer.appendChild(projectItem);
+        } catch (error) {
+            console.error('Error loading recent projects:', error);
         }
-
-        return result;
-    }
-
-    resolveRelativePath(basePath, relativePath) {
-        const baseDir = getParentPath(basePath);
-        return normalizePath(`${baseDir}/${relativePath}`);
-    }
-
-    processHtmlContent(html, projectFiles) {
-        let processedHtml = html;
-
-        // Replace stylesheet links with inline styles or blob URLs
-        projectFiles.styles.forEach((content, href) => {
-            const blob = new Blob([content], { type: 'text/css' });
-            const blobUrl = URL.createObjectURL(blob);
-            processedHtml = processedHtml.replace(
-                new RegExp(`href=["']${href}["']`, 'g'),
-                `href="${blobUrl}"`
-            );
-        });
-
-        // Replace script sources with blob URLs
-        projectFiles.scripts.forEach((content, src) => {
-            const blob = new Blob([content], { type: 'text/javascript' });
-            const blobUrl = URL.createObjectURL(blob);
-            processedHtml = processedHtml.replace(
-                new RegExp(`src=["']${src}["']`, 'g'),
-                `src="${blobUrl}"`
-            );
-        });
-
-        return processedHtml;
-    }
-
-    showSaveIndicator() {
-        const saveButton = document.querySelector('footer [title="Save"]');
-        const icon = saveButton.querySelector('.material-icons');
-        const originalText = icon.textContent;
-        
-        icon.textContent = 'check';
-        saveButton.classList.add('text-green-500');
-        
-        setTimeout(() => {
-            icon.textContent = originalText;
-            saveButton.classList.remove('text-green-500');
-        }, 1000);
-    }
-
-    showNotification(title, message, type = 'info') {
-        const container = document.getElementById('notifications');
-        const notification = createElement('div', `notification p-4 rounded-lg shadow-lg animate__animated animate__fadeInRight ${this.getNotificationClass(type)}`);
-        
-        notification.innerHTML = `
-            <div class="flex items-center space-x-2">
-                <span class="material-icons text-sm">${this.getNotificationIcon(type)}</span>
-                <div>
-                    <h4 class="font-semibold">${title}</h4>
-                    <p class="text-sm opacity-90">${message}</p>
-                </div>
-            </div>
-        `;
-
-        container.appendChild(notification);
-
-        // Remove notification after 3 seconds
-        setTimeout(() => {
-            notification.classList.replace('animate__fadeInRight', 'animate__fadeOutRight');
-            setTimeout(() => removeElement(notification), 500);
-        }, 3000);
-    }
-
-    getNotificationClass(type) {
-        const classes = {
-            info: 'bg-blue-500 text-white',
-            success: 'bg-green-500 text-white',
-            warning: 'bg-yellow-500 text-white',
-            error: 'bg-red-500 text-white'
-        };
-        return classes[type] || classes.info;
-    }
-
-    getNotificationIcon(type) {
-        const icons = {
-            info: 'info',
-            success: 'check_circle',
-            warning: 'warning',
-            error: 'error'
-        };
-        return icons[type] || icons.info;
     }
 }
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new App();
-}); 
+/**
+ * Register keyboard shortcuts
+ */
+function registerKeyboardShortcuts() {
+    // Ctrl+S: Save file
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            window.slimCodeEditor.tabs.saveActiveTab();
+        }
+    });
+
+    // Ctrl+N: New file
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.slimCodeEditor.fileExplorer.createNewFile();
+        }
+    });
+
+    // Ctrl+F: Find
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            window.slimCodeEditor.editor.showFindWidget();
+        }
+    });
+
+    // Ctrl+Shift+P: Command palette
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'p') {
+            e.preventDefault();
+            window.slimCodeEditor.editor.showCommandPalette();
+        }
+    });
+    
+    // Ctrl+W: Close tab
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+            e.preventDefault();
+            if (window.slimCodeEditor.tabs.activeTab) {
+                window.slimCodeEditor.tabs.closeTab(window.slimCodeEditor.tabs.activeTab);
+            }
+        }
+    });
+    
+    // Ctrl+O: Open folder
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+            e.preventDefault();
+            window.slimCodeEditor.fileExplorer.openFolder();
+        }
+    });
+}
+
+/**
+ * Load user preferences
+ */
+function loadUserPreferences() {
+    // Wait for editor to be ready
+    window.addEventListener('editorReady', () => {
+        // Load theme
+        const savedTheme = localStorage.getItem('slim-code-editor-theme') || 'vs-dark';
+        const themeSelect = document.querySelector('.theme-select');
+        if (themeSelect) {
+            themeSelect.value = savedTheme;
+            window.slimCodeEditor.editor.setTheme(savedTheme);
+            
+            // Add event listener
+            themeSelect.addEventListener('change', () => {
+                window.slimCodeEditor.editor.setTheme(themeSelect.value);
+            });
+        }
+    
+        // Load font size
+        const savedFontSize = localStorage.getItem('slim-code-editor-font-size') || '14';
+        const fontSizeSelect = document.querySelector('.font-size-select');
+        if (fontSizeSelect) {
+            fontSizeSelect.value = savedFontSize;
+            window.slimCodeEditor.editor.setFontSize(parseInt(savedFontSize));
+            
+            // Add event listener
+            fontSizeSelect.addEventListener('change', () => {
+                window.slimCodeEditor.editor.setFontSize(parseInt(fontSizeSelect.value));
+            });
+        }
+    
+        // Load word wrap
+        const savedWordWrap = localStorage.getItem('slim-code-editor-word-wrap') || 'off';
+        const wordWrapSelect = document.querySelector('.word-wrap-select');
+        if (wordWrapSelect) {
+            wordWrapSelect.value = savedWordWrap;
+            window.slimCodeEditor.editor.setWordWrap(savedWordWrap);
+            
+            // Add event listener
+            wordWrapSelect.addEventListener('change', () => {
+                window.slimCodeEditor.editor.setWordWrap(wordWrapSelect.value);
+            });
+        }
+    
+        // Load tab size
+        const savedTabSize = localStorage.getItem('slim-code-editor-tab-size') || '4';
+        const tabSizeSelect = document.querySelector('.tab-size-select');
+        if (tabSizeSelect) {
+            tabSizeSelect.value = savedTabSize;
+            window.slimCodeEditor.editor.setTabSize(parseInt(savedTabSize));
+            
+            // Add event listener
+            tabSizeSelect.addEventListener('change', () => {
+                window.slimCodeEditor.editor.setTabSize(parseInt(tabSizeSelect.value));
+            });
+        }
+    });
+} 
