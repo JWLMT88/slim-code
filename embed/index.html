@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slim code - Embed View</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="View and share code snippets with slim code's embed mode - a modern, lightweight code editor for the web.">
+    <meta name="keywords" content="code editor, code snippets, embed code, syntax highlighting, code sharing">
+    <meta name="author" content="slim code">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="slim code - Embed View">
+    <meta property="og:description" content="View and share code snippets with slim code's embed mode - a modern, lightweight code editor for the web.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/assets/images/slim-code-preview.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
+    
+    <!-- Monaco Editor CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.css">
+    <script>
+        var require = { paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs' } };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.nls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.0/min/vs/editor/editor.main.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="embed.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'editor-bg': 'var(--editor-bg)',
+                        'editor-sidebar': 'var(--editor-sidebar)',
+                        'editor-header': 'var(--editor-header)',
+                        'editor-accent': 'var(--editor-accent)',
+                        'editor-accent-alt': 'var(--editor-accent-alt)',
+                        'editor-border': 'var(--editor-border)',
+                        'editor-highlight': 'var(--editor-highlight)',
+                        'editor-text': 'var(--editor-text)',
+                        'editor-text-muted': 'var(--editor-text-muted)',
+                        'editor-error': 'var(--editor-error)',
+                        'editor-warning': 'var(--editor-warning)',
+                        'editor-success': 'var(--editor-success)'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-editor-bg text-editor-text font-sans h-screen overflow-hidden">
+    <div class="embed-container h-screen flex flex-col">
+        <header class="embed-header border-b border-editor-border px-4 py-2 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="embed-logo text-editor-accent mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m18 16 4-4-4-4"></path>
+                        <path d="m6 8-4 4 4 4"></path>
+                        <path d="m14.5 4-5 16"></path>
+                    </svg>
+                </div>
+                <div class="embed-title font-medium text-sm"></div>
+            </div>
+            <div class="embed-actions flex items-center space-x-2">
+                <select class="embed-theme-select bg-editor-bg border border-editor-border rounded px-2 py-1 text-xs focus:outline-none focus:border-editor-accent">
+                    <option value="vs-dark">Dark</option>
+                    <option value="vs">Light</option>
+                    <option value="hc-black">High Contrast</option>
+                </select>
+                <a href="#" class="embed-open-link text-xs text-editor-accent hover:underline" target="_blank">Open in slim code</a>
+            </div>
+        </header>
+        
+        <div class="embed-editor-container flex-1 relative">
+            <div id="embed-monaco-editor" class="h-full w-full"></div>
+        </div>
+        
+        <footer class="embed-footer border-t border-editor-border px-4 py-2 flex items-center justify-between text-xs text-editor-text-muted">
+            <div class="embed-file-info"></div>
+            <div class="embed-powered-by">
+                Powered by <a href="https://github.com/slim/slim-code" class="text-editor-accent hover:underline" target="_blank">slim code</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="embed.js"></script>
+</body>
+</html> 

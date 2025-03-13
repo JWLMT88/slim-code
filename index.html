@@ -30,64 +30,82 @@
             theme: {
                 extend: {
                     colors: {
-                        'editor-bg': '#1e1e2e',
-                        'editor-sidebar': '#181825',
-                        'editor-header': '#1e1e2e',
-                        'editor-accent': '#89b4fa',
-                        'editor-border': '#313244',
-                        'editor-highlight': '#313244',
-                        'editor-text': '#cdd6f4',
-                        'editor-text-muted': '#a6adc8',
-                        'editor-error': '#f38ba8',
-                        'editor-warning': '#f9e2af',
-                        'editor-success': '#a6e3a1'
+                        'editor-bg': 'var(--editor-bg)',
+                        'editor-sidebar': 'var(--editor-sidebar)',
+                        'editor-header': 'var(--editor-header)',
+                        'editor-accent': 'var(--editor-accent)',
+                        'editor-accent-alt': 'var(--editor-accent-alt)',
+                        'editor-border': 'var(--editor-border)',
+                        'editor-highlight': 'var(--editor-highlight)',
+                        'editor-text': 'var(--editor-text)',
+                        'editor-text-muted': 'var(--editor-text-muted)',
+                        'editor-error': 'var(--editor-error)',
+                        'editor-warning': 'var(--editor-warning)',
+                        'editor-success': 'var(--editor-success)'
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         mono: ['"Fira Code"', 'monospace']
+                    },
+                    boxShadow: {
+                        'sm': 'var(--shadow-sm)',
+                        'md': 'var(--shadow-md)',
+                        'lg': 'var(--shadow-lg)',
+                        'inner': 'var(--shadow-inner)'
                     }
                 }
             }
         }
     </script>
+    <style>
+        .resize-cursor, .resize-cursor * {
+            cursor: ew-resize !important;
+        }
+    </style>
 </head>
 <body class="bg-editor-bg text-editor-text font-sans h-screen overflow-hidden">
     <div class="flex h-screen">
-        <!-- Activity Bar -->
-        <div class="activity-bar w-12 bg-editor-sidebar flex flex-col items-center py-4 border-r border-editor-border">
+        <div class="activity-bar w-12 bg-editor-sidebar flex flex-col items-center py-4 border-r border-editor-border shadow-sm z-20">
             <button class="activity-button active mb-4" data-panel="explorer" title="Explorer">
                 <span class="material-icons">description</span>
             </button>
             <button class="activity-button mb-4" data-panel="search" title="Search">
                 <span class="material-icons">search</span>
             </button>
-            <button class="activity-button" data-panel="notes" title="Notes">
+            <button class="activity-button mb-4" data-panel="github" title="GitHub">
+                <span class="material-icons">code</span>
+            </button>
+            <button class="activity-button mb-4" data-panel="notes" title="Notes">
                 <span class="material-icons">sticky_note_2</span>
             </button>
             
-            <button class="activity-button" data-panel="debug" title="Debug Console">
+            <button class="activity-button mb-4" data-panel="debug" title="Debug Console">
                 <span class="material-icons">bug_report</span>
             </button>
             
-            <button class="activity-button preview-button" title="Preview">
+            <button class="activity-button preview-button " title="Preview">
                 <span class="material-icons">play_circle</span>
             </button>
             
             <div class="mt-auto">
+                <button class="activity-button mb-4" title="Embed Mode" onclick="window.open('embed/index.html', '_blank')">
+                    <span class="material-icons">code_off</span>
+                </button>
                 <button class="activity-button" data-panel="settings" title="Settings">
                     <span class="material-icons">settings</span>
                 </button>
             </div>
         </div>
 
-        <div class="sidebar w-64 bg-editor-sidebar border-r border-editor-border">
-            <div class="resize-handle sidebar-resizer"></div>
+        <div class="sidebar bg-editor-sidebar">
+            <div class="sidebar-resizer"></div>
             <button class="collapse-button" title="Toggle Sidebar">
                 <span class="material-icons">chevron_left</span>
             </button>
+            
             <div class="sidebar-panel active" data-panel="explorer">
-                <div class="panel-header flex items-center justify-between px-3 py-1.5 text-editor-text-muted">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider">Explorer</h2>
+                <div class="panel-header flex items-center justify-between">
+                    <h2>Explorer</h2>
                     <div class="flex space-x-1">
                         <button class="p-1 hover:bg-editor-highlight rounded" title="New File">
                             <span class="material-icons text-sm">note_add</span>
@@ -102,36 +120,82 @@
                 </div>
                 <div class="panel-content">
                     <div class="file-explorer">
+                        <div class="px-2 py-2">
+                            <div class="relative">
+                                <input type="text" class="file-search w-full bg-editor-bg border border-editor-border rounded-md p-1.5 pl-7 text-sm focus:outline-none focus:border-editor-accent" placeholder="Search files...">
+                                <span class="material-icons absolute left-2 top-1/2 transform -translate-y-1/2 text-editor-text-muted text-sm">search</span>
+                            </div>
+                        </div>
                         <div class="file-tree"></div>
                     </div>
                 </div>
             </div>
             
             <div class="sidebar-panel hidden" data-panel="search">
-                <div class="panel-header p-3 text-editor-text-muted">
+                <div class="panel-header flex items-center justify-between px-3 py-2 text-editor-text-muted">
                     <h2 class="text-xs font-semibold uppercase tracking-wider">Search</h2>
+                    <div class="search-actions flex space-x-1">
+                        <button class="search-action-btn p-1 hover:bg-editor-highlight rounded" title="Clear Search">
+                            <span class="material-icons text-sm">clear</span>
+                        </button>
+                        <button class="search-action-btn p-1 hover:bg-editor-highlight rounded" title="Refresh Search">
+                            <span class="material-icons text-sm">refresh</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="panel-content">
-                    <div class="search-container space-y-3">
-                        <div class="relative">
-                            <input type="text" class="search-input w-full bg-editor-bg border border-editor-border rounded p-2 pl-8 text-sm focus:outline-none focus:border-editor-accent" placeholder="Search in files...">
-                            <span class="material-icons absolute left-2 top-2 text-editor-text-muted text-sm">search</span>
+                    <div class="search-container p-3">
+                        <div class="search-input-wrapper relative mb-4 group">
+                            <div class="search-input-border absolute inset-0 rounded-md bg-gradient-to-r from-editor-accent/70 via-editor-accent to-editor-accent/70 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                            <input type="text" class="search-input w-full bg-editor-bg/80 backdrop-blur-sm border border-editor-border rounded-md p-2 pl-8 pr-8 text-sm focus:outline-none focus:border-transparent relative z-10" placeholder="Search in files...">
+                            <span class="material-icons absolute left-2 top-2 text-editor-text-muted text-sm z-20">search</span>
+                            <div class="search-input-actions absolute right-2 top-2 flex space-x-1 z-20">
+                                <button class="search-case-toggle p-0.5 rounded hover:bg-editor-highlight/50" title="Match Case">
+                                    <span class="material-icons text-sm">text_fields</span>
+                                </button>
+                                <button class="search-word-toggle p-0.5 rounded hover:bg-editor-highlight/50" title="Whole Word">
+                                    <span class="material-icons text-sm">wrap_text</span>
+                                </button>
+                                <button class="search-regex-toggle p-0.5 rounded hover:bg-editor-highlight/50" title="Use Regex">
+                                    <span class="material-icons text-sm">code</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-3 text-xs text-editor-text-muted">
-                            <label class="flex items-center space-x-1">
-                                <input type="checkbox" class="form-checkbox bg-editor-bg border border-editor-border rounded">
-                                <span>Match Case</span>
-                            </label>
-                            <label class="flex items-center space-x-1">
-                                <input type="checkbox" class="form-checkbox bg-editor-bg border border-editor-border rounded">
-                                <span>Whole Word</span>
-                            </label>
-                            <label class="flex items-center space-x-1">
-                                <input type="checkbox" class="form-checkbox bg-editor-bg border border-editor-border rounded">
-                                <span>Regex</span>
-                            </label>
+                        
+                        <div class="search-filters mb-4">
+                            <div class="search-filter-tabs flex border-b border-editor-border/50">
+                                <button class="search-filter-tab py-1 px-3 text-xs font-medium border-b-2 border-editor-accent text-editor-accent">All Results</button>
+                                <button class="search-filter-tab py-1 px-3 text-xs font-medium border-b-2 border-transparent text-editor-text-muted hover:text-editor-text">Files</button>
+                                <button class="search-filter-tab py-1 px-3 text-xs font-medium border-b-2 border-transparent text-editor-text-muted hover:text-editor-text">Symbols</button>
+                            </div>
                         </div>
-                        <div class="search-results mt-4 text-sm"></div>
+                        
+                        <div class="search-scope mb-4 flex items-center space-x-2 text-xs text-editor-text-muted">
+                            <span class="material-icons text-sm">folder</span>
+                            <span class="search-scope-path flex-1 truncate">Current Project</span>
+                            <button class="search-scope-change p-0.5 rounded hover:bg-editor-highlight/50" title="Change Search Scope">
+                                <span class="material-icons text-sm">edit</span>
+                            </button>
+                        </div>
+                        
+                        <div class="search-stats text-xs text-editor-text-muted mb-2 flex items-center justify-between">
+                            <span class="search-count">0 results</span>
+                            <div class="search-navigation flex items-center space-x-1">
+                                <button class="search-prev p-0.5 rounded hover:bg-editor-highlight/50 disabled:opacity-30" title="Previous Match" disabled>
+                                    <span class="material-icons text-sm">keyboard_arrow_up</span>
+                                </button>
+                                <button class="search-next p-0.5 rounded hover:bg-editor-highlight/50 disabled:opacity-30" title="Next Match" disabled>
+                                    <span class="material-icons text-sm">keyboard_arrow_down</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="search-results space-y-4">
+                            <div class="search-placeholder text-center py-8 text-editor-text-muted text-sm">
+                                <span class="material-icons text-3xl mb-2 opacity-50">search</span>
+                                <p>Type to search in your project</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,6 +212,112 @@
                 </div>
             </div>
             
+            <div class="sidebar-panel hidden" data-panel="github">
+                <div class="panel-header flex items-center justify-between">
+                    <h2>GitHub</h2>
+                    <div class="flex space-x-1">
+                        <button class="p-1 hover:bg-editor-highlight rounded github-refresh-btn" title="Refresh">
+                            <span class="material-icons text-sm">refresh</span>
+                        </button>
+                        <button class="p-1 hover:bg-editor-highlight rounded github-settings-btn" title="GitHub Settings">
+                            <span class="material-icons text-sm">settings</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="github-container">
+                        <div class="github-user-profile mb-6">
+                            <div class="github-auth-status flex items-center mb-3">
+                                <span class="github-auth-indicator w-2 h-2 rounded-full bg-editor-error mr-2"></span>
+                                <span class="github-auth-text">Not connected to GitHub</span>
+                            </div>
+                            
+                            <div class="github-user-info hidden">
+                                <div class="flex items-center mb-3">
+                                    <div class="github-avatar w-12 h-12 rounded-full bg-editor-highlight mr-3 overflow-hidden">
+                                        <img src="" alt="GitHub Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="github-username font-medium"></div>
+                                        <div class="github-bio text-xs text-editor-text-muted mt-1"></div>
+                                    </div>
+                                </div>
+                                <div class="github-stats grid grid-cols-3 gap-2 mb-3">
+                                    <div class="github-stat bg-editor-highlight rounded p-2 text-center">
+                                        <div class="github-stat-value font-medium"></div>
+                                        <div class="github-stat-label text-xs text-editor-text-muted">Repos</div>
+                                    </div>
+                                    <div class="github-stat bg-editor-highlight rounded p-2 text-center">
+                                        <div class="github-stat-value font-medium"></div>
+                                        <div class="github-stat-label text-xs text-editor-text-muted">Followers</div>
+                                    </div>
+                                    <div class="github-stat bg-editor-highlight rounded p-2 text-center">
+                                        <div class="github-stat-value font-medium"></div>
+                                        <div class="github-stat-label text-xs text-editor-text-muted">Following</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="github-auth-button w-full py-2 px-3 bg-editor-highlight hover:bg-editor-highlight/70 rounded-md transition-all flex items-center justify-center">
+                                <span class="material-icons mr-2 text-sm">login</span>
+                                <span>Connect to GitHub</span>
+                            </button>
+                        </div>
+                        
+                        <div class="github-clone mb-6">
+                            <h3 class="text-sm font-medium mb-3 flex items-center">
+                                <span class="material-icons text-editor-accent mr-2 text-sm">cloud_download</span>
+                                Clone Repository
+                            </h3>
+                            <div class="github-clone-form space-y-3">
+                                <div class="relative">
+                                    <div class="github-repo-input-wrapper relative">
+                                        <input type="text" class="github-repo-url w-full bg-editor-bg border border-editor-border rounded-md p-2 pl-8 text-sm focus:outline-none focus:border-editor-accent" placeholder="Repository URL or owner/repo">
+                                        <span class="material-icons absolute left-2 top-1/2 transform -translate-y-1/2 text-editor-text-muted text-sm">link</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="github-clone-status hidden">
+                                    <div class="github-clone-progress-container relative h-1 bg-editor-highlight rounded-full overflow-hidden">
+                                        <div class="github-clone-progress-bar h-full w-0 bg-editor-accent"></div>
+                                    </div>
+                                    <div class="flex justify-between items-center mt-1 text-xs">
+                                        <div class="github-clone-stage text-editor-text-muted">Initializing...</div>
+                                        <div class="github-clone-percent text-editor-accent">0%</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <button class="github-clone-button flex-1 py-2 px-3 bg-editor-accent text-black hover:bg-editor-accent/80 rounded-md transition-all flex items-center justify-center">
+                                        <span class="material-icons mr-2 text-sm">download</span>
+                                        <span>Clone Repository</span>
+                                    </button>
+                                    <button class="github-example-button py-2 px-3 bg-editor-highlight hover:bg-editor-highlight/70 rounded-md transition-all flex items-center justify-center" title="Use Example Repository">
+                                        <span class="material-icons text-sm">lightbulb</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="text-xs text-editor-text-muted">
+                                    <p>Examples: <span class="github-example-link text-editor-accent cursor-pointer">microsoft/vscode</span>, <span class="github-example-link text-editor-accent cursor-pointer">facebook/react</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="github-recent">
+                            <h3 class="text-sm font-medium mb-3 flex items-center">
+                                <span class="material-icons text-editor-accent mr-2 text-sm">history</span>
+                                Recent Repositories
+                            </h3>
+                            <div class="github-recent-list space-y-2">
+                                <div class="github-recent-empty text-sm text-editor-text-muted italic">
+                                    No recent repositories
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar-panel hidden" data-panel="settings">
                 <div class="panel-header p-3 text-editor-text-muted">
                     <h2 class="text-xs font-semibold uppercase tracking-wider">Settings</h2>
@@ -192,28 +362,34 @@
             </div>
 
             <div class="sidebar-panel hidden" data-panel="debug">
-                <div class="panel-header flex items-center justify-between px-3 py-1.5 text-editor-text-muted">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider">Debug Console</h2>
+                <div class="panel-header flex items-center justify-between">
+                    <h2>Debug Console</h2>
                     <div class="flex space-x-1">
                         <button class="p-1 hover:bg-editor-highlight rounded clear-console" title="Clear Console">
                             <span class="material-icons text-sm">clear_all</span>
                         </button>
+                        <button class="p-1 hover:bg-editor-highlight rounded filter-console" title="Filter Console">
+                            <span class="material-icons text-sm">filter_list</span>
+                        </button>
+                        <button class="p-1 hover:bg-editor-highlight rounded save-console" title="Save Console Output">
+                            <span class="material-icons text-sm">save</span>
+                        </button>
                     </div>
                 </div>
                 <div class="panel-content">
-                    <div class="debug-console font-mono text-sm space-y-2 overflow-y-auto"></div>
+                    <div class="debug-console font-mono text-sm"></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col">
-            <div class="editor-tabs bg-editor-header border-b border-editor-border">
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="editor-tabs">
                 <div class="tabs-container flex"></div>
             </div>
 
-            <div class="editor-container flex-1 relative">
+            <div class="editor-container">
                 <div class="welcome-screen absolute inset-0 flex items-center justify-center">
-                    <div class="welcome-content max-w-2xl w-full p-8">
+                    <div class="welcome-content max-w-2xl w-full p-8 bg-editor-bg ">
                         <div class="flex items-center mb-6">
                             <div class="text-editor-accent mr-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -232,15 +408,15 @@
                             <div>
                                 <h2 class="text-lg font-semibold mb-4">Start</h2>
                                 <div class="space-y-3">
-                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors">
+                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors shadow-sm">
                                         <span class="material-icons mr-3">create_new_folder</span>
                                         <span>New Project</span>
                                     </button>
-                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors">
+                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors shadow-sm">
                                         <span class="material-icons mr-3">folder_open</span>
                                         <span>Open Folder</span>
                                     </button>
-                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors">
+                                    <button class="start-option flex items-center w-full p-3 bg-editor-highlight/30 hover:bg-editor-highlight/50 rounded-lg transition-colors shadow-sm">
                                         <span class="material-icons mr-3">note_add</span>
                                         <span>New File</span>
                                     </button>
@@ -258,7 +434,7 @@
                 </div>
             </div>
 
-            <div class="status-bar h-6 bg-editor-header border-t border-editor-border flex items-center justify-between px-3 text-xs text-editor-text-muted">
+            <div class="status-bar flex items-center justify-between px-3 text-xs text-editor-text-muted">
                 <div class="status-bar-left flex items-center space-x-4"></div>
                 <div class="status-bar-right flex items-center space-x-4"></div>
             </div>
@@ -285,7 +461,6 @@
 
     <script src="js/core/editor.js"></script>
     <script src="js/core/sidebar.js"></script>
-    
     <script src="js/modules/file-explorer.js"></script>
     <script src="js/modules/tabs.js"></script>
     <script src="js/modules/search.js"></script>
@@ -296,7 +471,7 @@
     <script src="js/modules/notification-manager.js"></script>
     <script src="js/modules/modal-manager.js"></script>
     <script src="js/modules/debug-manager.js"></script>
-    
+    <script src="js/modules/github-manager.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

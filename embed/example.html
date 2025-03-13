@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slim code Embed Examples</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7aa2f7;
+            --primary-light: rgba(122, 162, 247, 0.1);
+            --primary-dark: #5e87e0;
+            --secondary: #bb9af7;
+            --text: #333;
+            --text-light: #6b7280;
+            --bg: #fff;
+            --bg-light: #f9fafb;
+            --bg-code: #f3f4f6;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: 0.2s ease;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #7aa2f7;
+                --primary-light: rgba(122, 162, 247, 0.1);
+                --primary-dark: #5e87e0;
+                --secondary: #bb9af7;
+                --text: #c0caf5;
+                --text-light: #a9b1d6;
+                --bg: #1a1b26;
+                --bg-light: #16161e;
+                --bg-code: #24283b;
+                --border: #292e42;
+                --shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary);
+            line-height: 1.3;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        
+        h2 {
+            font-size: 1.75rem;
+            margin: 2.5rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+        
+        a:hover {
+            color: var(--primary-dark);
+        }
+        
+        .example-container {
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+        
+        .example-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+        
+        .example-header {
+            background-color: var(--bg-light);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .example-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .example-title:before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237aa2f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='16 18 22 12 16 6'%3E%3C/polyline%3E%3Cpolyline points='8 6 2 12 8 18'%3E%3C/polyline%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-right: 10px;
+        }
+        
+        .example-description {
+            margin: 10px 0 0;
+            color: var(--text-light);
+        }
+        
+        .example-code {
+            background-color: var(--bg-code);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .example-code:before {
+            content: 'HTML';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 2px 6px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .example-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            background-color: var(--bg-light);
+        }
+        
+        .code-block {
+            background-color: var(--bg-code);
+            padding: 20px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            margin: 20px 0;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+        
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .parameter-table th, .parameter-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .parameter-table th {
+            background-color: var(--bg-light);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .parameter-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .parameter-table tr:nth-child(even) {
+            background-color: var(--bg-light);
+        }
+        
+        .parameter-table td:first-child {
+            font-family: 'Fira Code', monospace;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .intro {
+            background-color: var(--primary-light);
+            padding: 24px;
+            border-radius: var(--radius);
+            margin-bottom: 40px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .intro p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-divider {
+            display: flex;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .section-divider:before, .section-divider:after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--border);
+        }
+        
+        .section-divider-text {
+            padding: 0 16px;
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0 8px 28px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 18px;
+            height: 18px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237aa2f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .example-header {
+                padding: 16px;
+            }
+            
+            .example-code {
+                padding: 16px;
+                font-size: 13px;
+            }
+            
+            .parameter-table th, .parameter-table td {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>slim code Embed Examples</h1>
+    
+    <div class="intro">
+        <p>
+            This page demonstrates how to use the slim code embed mode with various query parameters.
+            You can embed code snippets from files, GitHub repositories, or GitHub Gists with a customizable editor view.
+        </p>
+    </div>
+    
+    <h2>Query Parameters Reference</h2>
+    
+    <table class="parameter-table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>path</td>
+                <td>Path to the file to display</td>
+                <td>-</td>
+                <td>path=js/main.js</td>
+            </tr>
+            <tr>
+                <td>content</td>
+                <td>Direct code content (URL encoded)</td>
+                <td>-</td>
+                <td>content=console.log(%22Hello%22)</td>
+            </tr>
+            <tr>
+                <td>lang</td>
+                <td>Language for syntax highlighting</td>
+                <td>Detected from file extension</td>
+                <td>lang=javascript</td>
+            </tr>
+            <tr>
+                <td>theme</td>
+                <td>Editor theme</td>
+                <td>vs-dark</td>
+                <td>theme=vs-light</td>
+            </tr>
+            <tr>
+                <td>title</td>
+                <td>Title to display in header</td>
+                <td>Filename or "Code Snippet"</td>
+                <td>title=My%20Code</td>
+            </tr>
+            <tr>
+                <td>header</td>
+                <td>Show/hide header</td>
+                <td>true</td>
+                <td>header=false</td>
+            </tr>
+            <tr>
+                <td>footer</td>
+                <td>Show/hide footer</td>
+                <td>true</td>
+                <td>footer=false</td>
+            </tr>
+            <tr>
+                <td>readOnly</td>
+                <td>Make editor read-only</td>
+                <td>true</td>
+                <td>readOnly=false</td>
+            </tr>
+            <tr>
+                <td>fontSize</td>
+                <td>Font size in pixels</td>
+                <td>14</td>
+                <td>fontSize=16</td>
+            </tr>
+            <tr>
+                <td>tabSize</td>
+                <td>Tab size in spaces</td>
+                <td>4</td>
+                <td>tabSize=2</td>
+            </tr>
+            <tr>
+                <td>wordWrap</td>
+                <td>Enable word wrapping</td>
+                <td>false</td>
+                <td>wordWrap=true</td>
+            </tr>
+            <tr>
+                <td>lineNumbers</td>
+                <td>Show line numbers</td>
+                <td>true</td>
+                <td>lineNumbers=false</td>
+            </tr>
+            <tr>
+                <td>minimap</td>
+                <td>Show minimap</td>
+                <td>false</td>
+                <td>minimap=true</td>
+            </tr>
+            <tr>
+                <td>highlight</td>
+                <td>Highlight specific lines</td>
+                <td>-</td>
+                <td>highlight=1,3-5,7</td>
+            </tr>
+            <tr>
+                <td>startLine</td>
+                <td>First line to display</td>
+                <td>1</td>
+                <td>startLine=10</td>
+            </tr>
+            <tr>
+                <td>endLine</td>
+                <td>Last line to display</td>
+                <td>-</td>
+                <td>endLine=20</td>
+            </tr>
+            <tr>
+                <td>source</td>
+                <td>Source type</td>
+                <td>file</td>
+                <td>source=github</td>
+            </tr>
+            <tr>
+                <td>githubUser</td>
+                <td>GitHub username</td>
+                <td>-</td>
+                <td>githubUser=microsoft</td>
+            </tr>
+            <tr>
+                <td>githubRepo</td>
+                <td>GitHub repository name</td>
+                <td>-</td>
+                <td>githubRepo=vscode</td>
+            </tr>
+            <tr>
+                <td>githubPath</td>
+                <td>Path to file in GitHub repo</td>
+                <td>-</td>
+                <td>githubPath=README.md</td>
+            </tr>
+            <tr>
+                <td>branch</td>
+                <td>Branch name for GitHub repo</td>
+                <td>main</td>
+                <td>branch=develop</td>
+            </tr>
+            <tr>
+                <td>gistId</td>
+                <td>GitHub Gist ID</td>
+                <td>-</td>
+                <td>gistId=abc123</td>
+            </tr>
+            <tr>
+                <td>gistFile</td>
+                <td>Filename in Gist (if multiple files)</td>
+                <td>First file</td>
+                <td>gistFile=example.js</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="section-divider">
+        <span class="section-divider-text">Live Examples</span>
+    </div>
+    
+    <h2>Examples</h2>
+    
+    <div class="example-container">
+        <div class="example-header">
+            <h3 class="example-title">Basic Example - Direct Content</h3>
+            <p class="example-description">
+                Embedding code directly using the content parameter
+            </p>
+        </div>
+        <div class="example-code">
+            &lt;iframe 
+                src="index.html?content=function%20hello()%20%7B%0A%20%20%20%20console.log(%22Hello%2C%20World!%22)%3B%0A%7D%0A%0Ahello()%3B&lang=javascript&title=Hello%20Function" 
+                width="100%" 
+                height="400" 
+                frameborder="0"
+            &gt;&lt;/iframe&gt;
+        </div>
+        <iframe 
+            class="example-iframe"
+            src="index.html?content=function%20hello()%20%7B%0A%20%20%20%20console.log(%22Hello%2C%20World!%22)%3B%0A%7D%0A%0Ahello()%3B&lang=javascript&title=Hello%20Function"
+        ></iframe>
+    </div>
+    
+    <div class="example-container">
+        <div class="example-header">
+            <h3 class="example-title">GitHub Repository Example</h3>
+            <p class="example-description">
+                Embedding code from a GitHub repository
+            </p>
+        </div>
+        <div class="example-code">
+            &lt;iframe 
+                src="index.html?source=github&githubUser=microsoft&githubRepo=vscode&githubPath=README.md&theme=vs-light" 
+                width="100%" 
+                height="400" 
+                frameborder="0"
+            &gt;&lt;/iframe&gt;
+        </div>
+        <iframe 
+            class="example-iframe"
+            src="index.html?source=github&githubUser=microsoft&githubRepo=vscode&githubPath=README.md&theme=vs-light"
+        ></iframe>
+    </div>
+    
+    <div class="example-container">
+        <div class="example-header">
+            <h3 class="example-title">Line Highlighting Example</h3>
+            <p class="example-description">
+                Highlighting specific lines in the code
+            </p>
+        </div>
+        <div class="example-code">
+            &lt;iframe 
+                src="index.html?content=function%20factorial(n)%20%7B%0A%20%20%20%20%2F%2F%20Base%20case%0A%20%20%20%20if%20(n%20%3C%3D%201)%20%7B%0A%20%20%20%20%20%20%20%20return%201%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%2F%2F%20Recursive%20case%0A%20%20%20%20return%20n%20*%20factorial(n%20-%201)%3B%0A%7D%0A%0Aconsole.log(factorial(5))%3B%20%2F%2F%20120&lang=javascript&highlight=3-5,8&title=Factorial%20Function" 
+                width="100%" 
+                height="400" 
+                frameborder="0"
+            &gt;&lt;/iframe&gt;
+        </div>
+        <iframe 
+            class="example-iframe"
+            src="index.html?content=function%20factorial(n)%20%7B%0A%20%20%20%20%2F%2F%20Base%20case%0A%20%20%20%20if%20(n%20%3C%3D%201)%20%7B%0A%20%20%20%20%20%20%20%20return%201%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20%2F%2F%20Recursive%20case%0A%20%20%20%20return%20n%20*%20factorial(n%20-%201)%3B%0A%7D%0A%0Aconsole.log(factorial(5))%3B%20%2F%2F%20120&lang=javascript&highlight=3-5,8&title=Factorial%20Function"
+        ></iframe>
+    </div>
+    
+    <div class="example-container">
+        <div class="example-header">
+            <h3 class="example-title">Minimal UI Example</h3>
+            <p class="example-description">
+                Hiding header and footer for a cleaner look
+            </p>
+        </div>
+        <div class="example-code">
+            &lt;iframe 
+                src="index.html?content=const%20colors%20%3D%20%5B%0A%20%20%20%20%27red%27%2C%0A%20%20%20%20%27green%27%2C%0A%20%20%20%20%27blue%27%2C%0A%20%20%20%20%27yellow%27%2C%0A%20%20%20%20%27purple%27%0A%5D%3B%0A%0Acolors.forEach(color%20%3D%3E%20%7B%0A%20%20%20%20console.log(%60The%20color%20is%20%24%7Bcolor%7D%60)%3B%0A%7D)%3B&lang=javascript&header=false&footer=false" 
+                width="100%" 
+                height="400" 
+                frameborder="0"
+            &gt;&lt;/iframe&gt;
+        </div>
+        <iframe 
+            class="example-iframe"
+            src="index.html?content=const%20colors%20%3D%20%5B%0A%20%20%20%20%27red%27%2C%0A%20%20%20%20%27green%27%2C%0A%20%20%20%20%27blue%27%2C%0A%20%20%20%20%27yellow%27%2C%0A%20%20%20%20%27purple%27%0A%5D%3B%0A%0Acolors.forEach(color%20%3D%3E%20%7B%0A%20%20%20%20console.log(%60The%20color%20is%20%24%7Bcolor%7D%60)%3B%0A%7D)%3B&lang=javascript&header=false&footer=false"
+        ></iframe>
+    </div>
+    
+    <div class="section-divider">
+        <span class="section-divider-text">Implementation Guide</span>
+    </div>
+    
+    <h2>How to Use</h2>
+    
+    <p>
+        To embed a code snippet on your website, use an iframe with the src attribute pointing to the slim code embed URL with your desired parameters:
+    </p>
+    
+    <div class="code-block">
+        &lt;iframe 
+            src="https://your-domain.com/slim-code/embed/index.html?path=your-file-path.js" 
+            width="100%" 
+            height="400" 
+            frameborder="0"
+        &gt;&lt;/iframe&gt;
+    </div>
+    
+    <p>
+        You can combine multiple parameters using the & character:
+    </p>
+    
+    <div class="code-block">
+        &lt;iframe 
+            src="https://your-domain.com/slim-code/embed/index.html?path=your-file-path.js&theme=vs-dark&highlight=1,5-10&readOnly=true" 
+            width="100%" 
+            height="400" 
+            frameborder="0"
+        &gt;&lt;/iframe&gt;
+    </div>
+    
+    <h2>Advanced Usage</h2>
+    
+    <p>
+        For more complex scenarios, you can use the source parameter to specify where the code should be loaded from:
+    </p>
+    
+    <ul class="feature-list">
+        <li><strong>file</strong>: Load from a file path (default)</li>
+        <li><strong>content</strong>: Use direct content provided in the URL</li>
+        <li><strong>github</strong>: Load from a GitHub repository</li>
+        <li><strong>gist</strong>: Load from a GitHub Gist</li>
+    </ul>
+    
+    <p>
+        Example for loading from GitHub:
+    </p>
+    
+    <div class="code-block">
+        &lt;iframe 
+            src="https://your-domain.com/slim-code/embed/index.html?source=github&githubUser=username&githubRepo=repo-name&githubPath=path/to/file.js" 
+            width="100%" 
+            height="400" 
+            frameborder="0"
+        &gt;&lt;/iframe&gt;
+    </div>
+</body>
+</html> 

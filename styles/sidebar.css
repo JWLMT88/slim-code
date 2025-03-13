@@ -1,43 +1,62 @@
-/* Sidebar base */
 .sidebar {
     position: relative;
     min-width: 48px;
-    transition: min-width 0.3s ease;
+    max-width: 600px;
+    width: 260px;
+    height: 100%;
+    background-color: var(--editor-sidebar);
+    border-right: 1px solid var(--editor-border);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
+    overflow: hidden;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
 .sidebar.collapsed {
     min-width: 48px;
     width: 48px !important;
+    overflow: visible;
 }
 
-.sidebar.collapsed .sidebar-content {
+.sidebar.collapsed .sidebar-panel {
     opacity: 0;
     pointer-events: none;
 }
 
 .sidebar.collapsed .collapse-button {
-    transform: rotate(180deg);
+    transform: translateY(-50%) rotate(180deg);
 }
 
-/* Resize handle */
-.resize-handle {
+.sidebar-resizer {
     position: absolute;
-    right: -3px;
+    right: -5px;
     top: 0;
     bottom: 0;
-    width: 6px;
+    width: 10px;
     cursor: ew-resize;
     background: transparent;
-    transition: background 0.2s;
-    z-index: 10;
+    z-index: 20;
+    touch-action: none;
 }
 
-.resize-handle:hover,
-.resize-handle.active {
-    background: rgba(0, 122, 204, 0.4);
+.sidebar-resizer:hover::after,
+.sidebar-resizer.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 5px;
+    width: 2px;
+    background: var(--editor-accent);
+    opacity: 0.5;
+    transition: opacity 0.2s;
 }
 
-/* Collapse button */
+.sidebar-resizer.active::after {
+    opacity: 1;
+}
+
 .collapse-button {
     position: absolute;
     right: -12px;
@@ -45,40 +64,94 @@
     transform: translateY(-50%);
     width: 24px;
     height: 24px;
-    background: #1e1e1e;
-    border: 1px solid #404040;
+    background: var(--editor-bg);
+    border: 1px solid var(--editor-border);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 11;
-    transition: transform 0.3s ease, background-color 0.2s;
+    z-index: 30;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .collapse-button:hover {
-    background-color: #2d2d2d;
+    background-color: var(--editor-highlight);
 }
 
 .collapse-button .material-icons {
     font-size: 18px;
-    color: #888;
+    color: var(--editor-text-muted);
     transition: color 0.2s;
 }
 
 .collapse-button:hover .material-icons {
-    color: #fff;
+    color: var(--editor-text);
 }
 
-/* Sidebar content transitions */
-.sidebar-content {
+.sidebar-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     opacity: 1;
     transition: opacity 0.3s ease;
 }
 
-/* Tabs */
+.sidebar-panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--editor-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--editor-border);
+    background-color: var(--editor-sidebar);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    backdrop-filter: blur(8px);
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 0;
+}
+
+/* Smooth scrolling for panel content */
+.panel-content {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--editor-border) transparent;
+}
+
+.panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background-color: var(--editor-border);
+    border-radius: 3px;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--editor-highlight);
+}
+
+/* Tab styling */
 [data-tab] {
     position: relative;
+    transition: color 0.2s;
 }
 
 [data-tab]::after {
@@ -92,16 +165,21 @@
     transition: background-color 0.2s;
 }
 
-[data-tab].active::after {
-    background: #007acc;
+[data-tab].active {
+    color: var(--editor-accent);
 }
 
+[data-tab].active::after {
+    background: var(--editor-accent);
+}
+
+/* File tree styling */
 .file-tree-item {
     transition: background-color 0.2s;
 }
 
 .file-tree-item.active {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--editor-highlight);
 }
 
 .directory-arrow {
@@ -112,7 +190,26 @@
     transform: rotate(90deg);
 }
 
-/* Extensions list */
+/* Animation for content */
+[data-content] {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-content].active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.bottom-actions button {
+    transition: color 0.2s;
+}
+
+.bottom-actions button:hover {
+    color: var(--editor-accent);
+}
+
 .extension-card {
     border: 1px solid #404040;
     border-radius: 4px;
@@ -123,7 +220,6 @@
     border-color: #007acc;
 }
 
-/* Projects list */
 .project-card {
     border: 1px solid #404040;
     border-radius: 4px;
@@ -133,25 +229,4 @@
 .project-card:hover {
     border-color: #007acc;
     transform: translateY(-1px);
-}
-
-/* Sidebar sections */
-[data-content] {
-    opacity: 0;
-    transform: translateX(-10px);
-    transition: all 0.3s ease-out;
-}
-
-[data-content].active {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* Sidebar bottom actions */
-.bottom-actions button {
-    transition: color 0.2s;
-}
-
-.bottom-actions button:hover {
-    color: #007acc;
 } 
